@@ -1,137 +1,183 @@
-# 🛍️ Flexit Clothing App
+# Flexit Clothing App — Frontend (React Native + Expo)
 
-Flexit is a modern clothing e-commerce app built using **Django REST Framework** for the backend and **React Native with Expo Router** for the frontend. It features a fully functional shopping experience including authentication, product browsing, wishlist, cart management, address support, and more.
+This is the **React Native frontend** for **Flexit**, a clothing e-commerce mobile application built using **Expo Router**, **TanStack Query**, and modular UI components. It integrates with a Django REST Framework backend and provides a seamless, mobile-first shopping experience.
 
 ---
 
 ## 🚀 Tech Stack
 
-- **Frontend:** React Native + Expo Router
-- **Backend:** Django REST Framework (DRF)
-- **API Handling:** Axios + TanStack Query (React Query)
-- **Image Handling:** Expo ImagePicker, Django Media Files
-- **Database:** SQLite (dev) / PostgreSQL (prod-ready)
-- **Authentication:** OTP-based email login
+* **Framework:** React Native with [Expo Router](https://expo.dev/router)
+* **API Handling:** Axios + [TanStack Query](https://tanstack.com/query/latest)
+* **Styling:** Tailwind CSS (via `nativewind`)
+* **Navigation:** File-based routing with Expo Router
+* **State Management:** React Hooks + Context
+* **UI Enhancements:** `react-native-modal`, `expo-checkbox`, `ImagePicker`, etc.
 
 ---
 
-## ✅ Features Overview
+## 🎯 Features Implemented
 
-### 1. 🔐 Authentication & Onboarding
+### 🔐 OTP-based Authentication
 
-- OTP-based login system
-  - Send OTP with disabled button during request
-  - 60-second resend timer
-  - Display email with option to change
-- Onboarding screen for new users
-
----
-
-### 2. 👤 User Profile
-
-- Custom `User` model in Django
-- Image upload support for avatar (device image picker)
-- Frontend integration with Expo ImagePicker
+* Login via email OTP
+* "Send OTP" with disabled button during request
+* Resend OTP with 60-second cooldown
+* Display sent email with clickable "Change" option
 
 ---
 
-### 3. 📍 Address Management
+### 🧑 User Profile
 
-- Separate `Address` model (1 user → multiple addresses)
-- Add, edit, delete address support
-- Enforces one default address using `is_default` flag
-
----
-
-### 4. 🛒 Product Management
-
-- Product structure:
-  - Title, brand, category, description
-  - Price, discount, calculated final price
-  - Total stock auto-computed
-- `ProductColorVariant`:
-  - Color options with thumbnail + images
-  - Size and stock mapping per color
-- Serializer usage:
-  - `ProductListSerializer` for light queries
-  - `ProductSerializer` for detailed view
+* Profile avatar upload using **Expo ImagePicker**
+* Avatar stored via backend media support
+* Uses `AuthContext` for user data
 
 ---
 
-### 5. 💖 Wishlist / Saved Products
+### 📍 Address Management
 
-- Save/un-save products to wishlist
-- Saved products screen with card layout
-- Deletion with confirmation modal
-
----
-
-### 6. 🎨 Product UI & UX
-
-- ProductCard component for grid display
-- Product detail screen with:
-  - Image gallery
-  - Variant selector (color, size)
-  - Brand link, pricing, reviews, and descriptions
-- Clean dark-themed UI
-- Responsive layout using Flexbox
+* Add, edit, and delete addresses
+* Support for multiple addresses per user
+* Only one `is_default` address enforced via UI toggle
 
 ---
 
-### 7. 🏠 Home Screen
+### 🛍️ Product UI
 
-- Header includes:
-  - Search bar with navigation
-  - Cart icon with indicator
-- Space for featured/popular products
+* Product card component:
 
----
+  * Thumbnail, title, brand, price, discount
+* Product detail page:
 
-### 8. 🔍 Hybrid Search System
-
-- `/products/search/` → full product search
-- `/products/suggest-keywords/` → suggestion endpoint
-- Debounced keyword suggestions as user types
-- Manual search on enter or selection
-- "Showing results for..." UX
-- Full result screen with fallback for no results
+  * Image gallery with fade on scroll
+  * Variant selection (color & size)
+  * Brand navigation
+  * Reviews section
+  * Expandable product details
+* Responsive styling with Flexbox and dark mode theme
 
 ---
 
-### 9. 🎯 Product Filtering & Sorting ✅
+### 💖 Wishlist / Saved Products
 
-- Filter by:
-  - Category, Brand, Color, Size, Target Audience
-- Sorting options (price, popularity, etc.)
-- Modal-based UI with selectable chips
-- Backend-powered dynamic filter options
+* Toggle saved products (via LikeButton)
+* Saved products screen
+* Delete saved items with confirmation modal
 
 ---
 
-### 10. 🧺 Full Cart System ✅
+### 🧠 Hybrid Search System
 
-- Add to cart with variant selection
-- Quantity management per cart item
-- Cart summary with pricing and discount
-- Select items for checkout using checkboxes
-- Persistent cart for each user
+* **Keyword suggestion (debounced)**
+
+  * `/suggest-keywords/` API integration
+* **Full search with results**
+
+  * `/search/` API integration
+* Smart UI:
+
+  * Loading state
+  * "No results" fallback
+  * "Showing results for..." label
+  * Clearable input with `X`
 
 ---
 
-## 🧠 TanStack Query for API Management
+### 🛒 Full Cart System ✅
 
-Flexit leverages **TanStack Query (React Query)** for:
+* Add to cart from **Product Detail** screen (after selecting color + size)
+* Quantity controls (`+`/`-`) inside cart screen
+* Uses backend-safe cart item structure (`product`, `color_variant`, `size_variant`)
+* Cart items are displayed in a list with:
 
-- Data fetching, caching, and revalidation
-- Stale-while-revalidate strategies
-- Query invalidation on mutations (e.g., cart updates, wishlist changes)
-- Optimistic UI updates and background sync
-- Seamless pagination and infinite scrolling (planned)
+  * Image
+  * Product details
+  * Price, discount, original price
+  * Color & size chips
+  * Selection checkbox for checkout
+* Conditional checkout button:
 
-Example:
+  * Only visible when at least one item is selected
+
+---
+
+### 🎛️ Product Filtering & Sorting ✅
+
+* Modal-based full-screen filter UI
+* Categories shown on left; values on right
+* Filterable options:
+
+  * Category, Brand, Color, Size, Target Audience
+* Reset and Apply buttons
+* Backend-driven filter values via `/products/filters/`
+
+---
+
+### 🏠 Home Screen
+
+* Top header with:
+
+  * Search bar
+  * Cart icon (currently UI only)
+* Space for featured/popular products (planned)
+
+---
+
+## 📦 API Handling with TanStack Query
+
+All API interactions are handled with **TanStack Query**, enabling:
+
+* 🔁 Automatic background refetch
+* 🌟 Cache-first data access
+* 🚀 Optimistic updates (cart actions, wishlist, etc.)
+* 🔥 Real-time UI syncing with server
+
+```tsx
+const { data, isLoading } = useQuery({
+  queryKey: ["cart"],
+  queryFn: fetchCart,
+});
+```
+
+---
+
+## 🛠️ Modular Component Structure
 
 ```ts
-const { data, isLoading } = useQuery({
-  queryKey: ["products"],
-  queryFn: fetchProducts,
-});
+ProductCard, SearchBar, LikeButton
+ProductVariants, AddToCartControls
+CartActions (for quantity management)
+CustomModal, FilterModal
+useDebounce hook
+Organized with clean reusable structure
+```
+
+---
+
+## 🧪 Dev Instructions
+
+```bash
+# Install dependencies
+npm install
+
+# Start the Expo server
+npx expo start
+```
+
+Update `.env` or Axios base URL to point to your Django backend API.
+
+---
+
+## ✨ Planned Enhancements
+
+* Push notifications
+* Order history screen
+* Cart persistence across sessions
+* Lazy loading and pagination
+* Animations for transitions
+
+---
+
+## 📄 License
+
+This project is open-source under the MIT License.
