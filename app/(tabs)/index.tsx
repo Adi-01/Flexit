@@ -1,75 +1,172 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { FeaturedProductCard, ProductCard } from "@/components/cards";
+import FilterModal from "@/components/CustomFilters";
+import NoResults from "@/components/NoResults";
+import SearchBar from "@/components/SearchBar";
+import icons from "@/constants/icons";
+import { getFilteredProducts } from "@/lib/api/filteredProducts";
+import { Product } from "@/types/types";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
+import qs from "qs";
+import { useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+const featuredDummyProduct = [
+  {
+    $id: "1",
+    image: "",
+  },
+];
 
 export default function HomeScreen() {
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<
+    Record<string, string[]>
+  >({});
+  const hasActiveFilters = Object.values(selectedFilters).some(
+    (arr) => arr.length > 0
+  );
+  const activeFilterCount = Object.values(selectedFilters).reduce(
+    (total, arr) => total + arr.length,
+    0
+  );
+
+  const queryString = `?${qs.stringify(
+    { ...selectedFilters, in_stock: ["true"] }, // always include in_stock=true
+    { arrayFormat: "repeat" }
+  )}`;
+
+  const {
+    data: products = [],
+    isLoading,
+    error,
+  } = useQuery<Product[]>({
+    queryKey: ["filtered-products", selectedFilters],
+    queryFn: () => getFilteredProducts(queryString),
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const handleCardPress = (id: number) => {
+    router.push({
+      pathname: "/products/[id]",
+      params: { id: id.toString() },
+    });
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView className="h-full bg-Fdark">
+      <FlatList
+        data={products}
+        scrollEnabled={!isLoading}
+        numColumns={2}
+        renderItem={({ item }) => (
+          <View className="relative w-[48%]">
+            <ProductCard item={item} onPress={() => handleCardPress(item.id)} />
+          </View>
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerClassName="pb-32"
+        columnWrapperClassName="flex gap-4 justify-between px-5"
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          isLoading ? (
+            <ActivityIndicator size="large" className="text-white mt-5" />
+          ) : error ? (
+            <Text className="text-white text-center mt-5">
+              {(error as Error)?.message || "Something went wrong"}
+            </Text>
+          ) : (
+            <NoResults />
+          )
+        }
+        ListHeaderComponent={() => (
+          <View className="px-5">
+            {/* Header */}
+            <View className="flex flex-row items-center justify-between mt-12">
+              <View className="flex-1 mr-3">
+                <SearchBar
+                  readOnly
+                  onPressReadOnly={() => router.push("/search")}
+                />
+              </View>
+              <TouchableOpacity
+                className="size-[46px] rounded-full bg-Fdark items-center justify-center border border-white"
+                onPress={() => router.push("/cart")}
+              >
+                <Image
+                  source={icons.cart}
+                  className="size-6"
+                  tintColor="#fff"
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Featured */}
+            <View className="my-5">
+              <View className="flex flex-row items-center justify-between mt-2">
+                <Text className="text-xl font-rubik-bold text-white">
+                  Featured Deals
+                </Text>
+              </View>
+              <FlatList
+                data={featuredDummyProduct}
+                renderItem={({ item }) => (
+                  <FeaturedProductCard
+                    item={item}
+                    onPress={() => handleCardPress(Number(item.$id))}
+                  />
+                )}
+                keyExtractor={(item) => item.$id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="flex gap-4 mt-5"
+              />
+            </View>
+
+            {/* Filters */}
+            <View className="mt-2">
+              <View className="flex flex-row items-center justify-between">
+                <Text className="text-xl font-rubik-bold text-white">
+                  Our Recommendations
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setFilterVisible(true)}
+                  className={`px-4 py-1 rounded-full border ${
+                    hasActiveFilters
+                      ? "bg-blue-500 border-blue-500"
+                      : "border-white"
+                  }`}
+                >
+                  <Text
+                    className={`text-[12px] font-rubik-bold ${
+                      hasActiveFilters ? "text-white" : "text-white"
+                    }`}
+                  >
+                    {activeFilterCount > 0
+                      ? `Filter (${activeFilterCount})`
+                      : "Filter"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+      />
+
+      <FilterModal
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        onApply={(filters) => setSelectedFilters(filters)}
+      />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
