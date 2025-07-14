@@ -168,16 +168,6 @@ Update `.env` or Axios base URL to point to your Django backend API.
 
 ---
 
-## ✨ Planned Enhancements
-
-* Push notifications
-* Order history screen
-* Cart persistence across sessions
-* Lazy loading and pagination
-* Animations for transitions
-
----
-
 ## 📄 License
 
 This project is open-source under the MIT License.
