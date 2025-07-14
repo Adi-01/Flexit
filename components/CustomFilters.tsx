@@ -1,13 +1,7 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import Modal from "react-native-modal";
 
 type FilterCategory =
@@ -82,6 +76,32 @@ const FilterModal: React.FC<FilterModalProps> = ({
     });
   };
 
+  const sortSizes = (sizes: (string | Brand)[]): (string | Brand)[] => {
+    const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL"];
+
+    return [...sizes].sort((a, b) => {
+      const valA = typeof a === "string" ? a : a.slug;
+      const valB = typeof b === "string" ? b : b.slug;
+
+      const indexA = sizeOrder.indexOf(valA.toUpperCase());
+      const indexB = sizeOrder.indexOf(valB.toUpperCase());
+
+      const isNumA = !isNaN(Number(valA));
+      const isNumB = !isNaN(Number(valB));
+
+      if (!isNumA && !isNumB) {
+        // Both are letters
+        return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+      } else if (isNumA && isNumB) {
+        // Both are numbers
+        return Number(valA) - Number(valB);
+      } else {
+        // One is letter, one is number — keep letters first
+        return isNumA ? 1 : -1;
+      }
+    });
+  };
+
   return (
     <Modal
       isVisible={visible}
@@ -92,69 +112,90 @@ const FilterModal: React.FC<FilterModalProps> = ({
       backdropOpacity={0.5}
       propagateSwipe
     >
-      <View className="h-[90%] bg-white rounded-t-2xl overflow-hidden">
+      <View className="h-[90%] bg-Fdark rounded-t-2xl overflow-hidden">
         {/* Handle / notch */}
         <View className="items-center mt-2 mb-2">
-          <View className="w-14 h-1.5 bg-gray-400 rounded-full" />
+          <View className="w-14 h-1.5 bg-gray-500 rounded-full" />
         </View>
 
         {isLoading ? (
           <View className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" />
+            <ActivityIndicator size="large" color="#fff" />
           </View>
         ) : (
           <View className="flex-row flex-1">
             {/* Left: Filter categories */}
-            <View className="w-1/3 bg-gray-100">
+            <View className="w-1/3 bg-Fdark border-r border-white/10">
               {FILTER_CATEGORIES.map((cat) => (
                 <TouchableOpacity
                   key={cat}
                   onPress={() => setSelectedCategory(cat)}
-                  className={`p-4 border-b ${
-                    selectedCategory === cat ? "bg-white" : ""
+                  className={`p-4 border-b border-white/10 ${
+                    selectedCategory === cat ? "bg-white/10" : ""
                   }`}
                 >
-                  <Text className="capitalize">{cat.replace("_", " ")}</Text>
+                  <Text
+                    className={`capitalize ${
+                      selectedCategory === cat ? "text-white" : "text-white/70"
+                    }`}
+                  >
+                    {cat.replace("_", " ")}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             {/* Right: Filter values */}
-            <View className="w-2/3 p-4">
-              <FlatList
-                data={getValuesForCategory(selectedCategory)}
-                keyExtractor={(item) =>
-                  typeof item === "string" ? item : (item as Brand).slug
-                }
-                renderItem={({ item }) => {
-                  const value =
-                    typeof item === "string" ? item : (item as Brand).slug;
-                  const label =
-                    typeof item === "string" ? item : (item as Brand).name;
-
+            <View className="w-2/3 p-4 bg-Fdark">
+              <View className="flex-row flex-wrap gap-x-2 gap-y-2">
+                {(selectedCategory === "sizes"
+                  ? sortSizes(
+                      getValuesForCategory(selectedCategory) as string[]
+                    )
+                  : getValuesForCategory(selectedCategory)
+                ).map((item) => {
+                  const value = typeof item === "string" ? item : item.slug;
+                  const label = typeof item === "string" ? item : item.name;
                   const isSelected =
                     selectedFilters[selectedCategory]?.includes(value);
 
                   return (
                     <TouchableOpacity
-                      className={`p-2 mb-2 border rounded ${
-                        isSelected ? "bg-blue-200" : ""
-                      }`}
+                      key={value}
                       onPress={() => toggleSelection(selectedCategory, value)}
+                      className={`px-4 py-2 rounded-full border ${
+                        isSelected
+                          ? "bg-blue-600/30 border-blue-400"
+                          : "border-white/20"
+                      }`}
                     >
-                      <Text>{label}</Text>
+                      <Text
+                        className={`text-sm ${
+                          isSelected ? "text-white" : "text-white/80"
+                        }`}
+                      >
+                        {label}
+                      </Text>
                     </TouchableOpacity>
                   );
-                }}
-              />
+                })}
+              </View>
             </View>
           </View>
         )}
 
         {/* Bottom buttons */}
-        <View className="flex-row justify-between p-4 border-t bg-white">
-          <TouchableOpacity onPress={() => setSelectedFilters({})}>
-            <Text className="text-red-600 text-base">Reset Filters</Text>
+        <View className="flex-row justify-between p-4 border-t border-white/10 bg-Fdark">
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedFilters({});
+              onApply({});
+              onClose();
+            }}
+          >
+            <Text className="text-red-400 text-base font-semibold">
+              Reset Filters
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -184,7 +225,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
               onClose();
             }}
           >
-            <Text className="text-blue-600 text-base">Apply</Text>
+            <Text className="text-blue-400 text-base font-semibold">Apply</Text>
           </TouchableOpacity>
         </View>
       </View>

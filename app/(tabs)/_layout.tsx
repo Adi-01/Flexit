@@ -1,8 +1,8 @@
 import { useAuth } from "@/lib/auth/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { Redirect, Tabs, useSegments } from "expo-router";
+import { Redirect, router, Tabs, useSegments } from "expo-router";
 import { useMemo } from "react";
-import { ActivityIndicator, Image, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, View } from "react-native";
 
 function TabIcon({ focused, name }: { focused: boolean; name: string }) {
   const iconName = focused ? name.replace("-outline", "") : name;
@@ -60,6 +60,13 @@ export default function TabsLayout() {
       segments.length > 2
     );
   }, [segments]);
+
+  const goToProfile = () => {
+    // segments example: ['(tabs)', 'profile']
+    if (segments[1] !== "profile") {
+      router.push("/profile");
+    }
+  };
 
   if (loading) {
     return (
@@ -132,6 +139,9 @@ export default function TabsLayout() {
         name="profile"
         options={{
           headerShown: false,
+          tabBarButton: (props) => {
+            return <Pressable {...props} onPress={goToProfile} />;
+          },
           tabBarIcon: ({ focused }) => (
             <ProfileTabIcon
               focused={focused}
