@@ -1,125 +1,123 @@
-# Flexit Clothing App — Frontend (React Native + Expo)
+# 👕 Flexit Clothing App — Frontend (React Native + Expo)
 
-This is the **React Native frontend** for **Flexit**, a clothing e-commerce mobile application built using **Expo Router**, **TanStack Query**, and modular UI components. It integrates with a Django REST Framework backend and provides a seamless, mobile-first shopping experience.
+This is the **React Native frontend** for **Flexit**, a mobile-first clothing e-commerce application built using **Expo Router**, **TanStack Query**, and a modular, utility-first UI. It integrates with a Django REST Framework backend and offers a seamless shopping experience tailored for fashion lovers.
 
 ---
 
 ## 🚀 Tech Stack
 
-* **Framework:** React Native with [Expo Router](https://expo.dev/router)
-* **API Handling:** Axios + [TanStack Query](https://tanstack.com/query/latest)
-* **Styling:** Tailwind CSS (via `nativewind`)
-* **Navigation:** File-based routing with Expo Router
-* **State Management:** React Hooks + Context
-* **UI Enhancements:** `react-native-modal`, `expo-checkbox`, `ImagePicker`, etc.
+- **Framework:** React Native + [Expo Router](https://expo.dev/router)
+- **API Handling:** Axios + [TanStack Query](https://tanstack.com/query/latest)
+- **Styling:** Tailwind CSS via [NativeWind](https://www.nativewind.dev/)
+- **Navigation:** File-based routing with Expo Router
+- **State Management:** React Context + Hooks
+- **Storage:** [Expo SecureStore](https://docs.expo.dev/versions/latest/sdk/securestore/) for auth/session persistence
+- **UI Enhancements:** `react-native-modal`, `expo-checkbox`, `ImagePicker`, etc.
 
 ---
 
 ## 🎯 Features Implemented
 
-### 🔐 OTP-based Authentication
+### 🔐 OTP Authentication
 
-* Login via email OTP
-* "Send OTP" with disabled button during request
-* Resend OTP with 60-second cooldown
-* Display sent email with clickable "Change" option
+- Email-based OTP login
+- Resend OTP after 60s cooldown
+- Change email option on OTP screen
+- Disabled button during network calls
 
 ---
 
-### 🧑 User Profile
+### 👤 User Profile
 
-* Profile avatar upload using **Expo ImagePicker**
-* Avatar stored via backend media support
-* Uses `AuthContext` for user data
+- Upload avatar using **Expo ImagePicker**
+- Avatars stored via backend media
+- Managed via `AuthContext`
 
 ---
 
 ### 📍 Address Management
 
-* Add, edit, and delete addresses
-* Support for multiple addresses per user
-* Only one `is_default` address enforced via UI toggle
+- Add, edit, delete addresses
+- Toggle `is_default` with only one default enforced
+- Active address shown during checkout
 
 ---
 
 ### 🛍️ Product UI
 
-* Product card component:
-
-  * Thumbnail, title, brand, price, discount
-* Product detail page:
-
-  * Image gallery with fade on scroll
-  * Variant selection (color & size)
-  * Brand navigation
-  * Reviews section
-  * Expandable product details
-* Responsive styling with Flexbox and dark mode theme
+- Product cards: thumbnail, brand, price, discount
+- Product Detail page:
+  - Image gallery
+  - Color & size variant selection
+  - Expandable details, brand info, and reviews
+- Responsive mobile layout using Tailwind (NativeWind)
 
 ---
 
 ### 💖 Wishlist / Saved Products
 
-* Toggle saved products (via LikeButton)
-* Saved products screen
-* Delete saved items with confirmation modal
+- Like toggle to save/remove products
+- Saved items screen with confirmation-based delete
 
 ---
 
-### 🧠 Hybrid Search System
+### 🔎 Hybrid Search System
 
-* **Keyword suggestion (debounced)**
-
-  * `/suggest-keywords/` API integration
-* **Full search with results**
-
-  * `/search/` API integration
-* Smart UI:
-
-  * Loading state
-  * "No results" fallback
-  * "Showing results for..." label
-  * Clearable input with `X`
+- Debounced suggestions via `/suggest-titles/`
+- Full keyword search via `/search/`
+- User-friendly UX with clear input, loading state, and fallback
 
 ---
 
-### 🛒 Full Cart System ✅
+### 🛒 Cart System
 
-* Add to cart from **Product Detail** screen (after selecting color + size)
-* Quantity controls (`+`/`-`) inside cart screen
-* Uses backend-safe cart item structure (`product`, `color_variant`, `size_variant`)
-* Cart items are displayed in a list with:
-
-  * Image
-  * Product details
-  * Price, discount, original price
-  * Color & size chips
-  * Selection checkbox for checkout
-* Conditional checkout button:
-
-  * Only visible when at least one item is selected
+- Add to cart from product detail (variant required)
+- Quantity controls (`+` / `-`)
+- List view with:
+  - Product info
+  - Color & size chips
+  - Price and discount
+  - Image
+- Checkbox selection for checkout
+- Checkout button appears only when items are selected
 
 ---
 
-### 🎛️ Product Filtering & Sorting ✅
+### 💳 Payments & Orders ✅
 
-* Modal-based full-screen filter UI
-* Categories shown on left; values on right
-* Filterable options:
+- Integrated **Stripe PaymentSheet** for secure in-app payment
+- Real-time order creation upon successful payment
+- Orders include:
+  - Product details (with variant info)
+  - Quantity, total price, payment status
+  - Linked address and order date
 
-  * Category, Brand, Color, Size, Target Audience
-* Reset and Apply buttons
-* Backend-driven filter values via `/products/filters/`
+---
+
+### 📦 Order History ✅
+
+- Orders listed by date with summary
+- Tap on order to view full detail:
+  - Items, quantity, price, delivery address, and status
+- Display formatted timestamps and total bill amount
+
+---
+
+### 🎛️ Filters & Sorting
+
+- Full-screen modal filter interface
+- Filterable by: Category, Brand, Color, Size, Target Audience
+- Reset & Apply options
+- Powered by backend `/products/filters/` API
 
 ---
 
 ### 🏠 Home Screen
 
-* Top header with:
-
-  * Search bar
-  * Cart icon (currently UI only)
-* Space for featured/popular products (planned)
+- Top header with:
+  - Search input
+  - Cart icon (UI)
+- Placeholder for featured and trending products
 
 ---
 
