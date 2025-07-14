@@ -4,9 +4,10 @@ This is the **React Native frontend** for **Flexit**, a mobile-first clothing e-
 
 ---
 
-## 🎥 Demo Videos
+## 🎥 Demo Video
 
-[![Cart Demo](https://img.icons8.com/ios-filled/100/video.png)](./assets/videos/flexit2.mp4)
+<video src="https://github.com/user-attachments/assets/747a5e59-63e4-4d93-adb7-be4789222789" width="100%" controls />
+
 
 ---
 
