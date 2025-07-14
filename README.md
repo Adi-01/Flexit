@@ -4,6 +4,12 @@ This is the **React Native frontend** for **Flexit**, a mobile-first clothing e-
 
 ---
 
+## 🎥 Demo Videos
+
+[![Cart Demo](https://img.icons8.com/ios-filled/100/video.png)](./assets/videos/flexit2.mp4)
+
+---
+
 ## 🚀 Tech Stack
 
 - **Framework:** React Native + [Expo Router](https://expo.dev/router)
