@@ -139,6 +139,12 @@ const { data, isLoading } = useQuery({
 
 ---
 
+## 🔗 Backend Repo
+
+> [🔗 Flexit Frontend (React Native + Expo)](https://github.com/Adi-01/Flexit-Backend)
+
+---
+
 ## 🛠️ Modular Component Structure
 
 ```ts
